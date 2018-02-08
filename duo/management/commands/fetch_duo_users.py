@@ -58,16 +58,19 @@ class Command(BaseCommand):
                 'last_login': last_login
             }
 
+            # Call get_or_create with the duo_user dictionary
             try:
                 instance, created = User.objects.get_or_create(user_id=user['user_id'], defaults=duo_user)
             except Exception as e:
                 self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
                 continue
 
+            # If the object was not 'created', then it already existed.  Update the model as needed
             if not created:
                 for attr, value in duo_user.items():
                     setattr(instance, attr, value)
 
+                # Save the updates
                 try:
                     instance.save()
                 except Exception as e:
