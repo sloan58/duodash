@@ -33,6 +33,9 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.WARNING('[-]') + ' Found %s Duo Users to store locally' % len(users))
 
+        # Remove local Duo User accounts that are no longer returned from the API
+        self.remove_stale_accounts(self, users)
+
         # Just picking a timezone since we have to....
         timezone = pytz.timezone("America/New_York")
 
@@ -78,3 +81,13 @@ class Command(BaseCommand):
                     continue
 
         self.stdout.write(self.style.SUCCESS('[√]') + ' Finished!')
+
+    @staticmethod
+    def remove_stale_accounts(self, users):
+        duo_user_id_list = [o['user_id'] for o in users]
+        local_users = User.objects.values_list('user_id', flat=True)
+        stales = list(set(local_users) - set(duo_user_id_list))
+        self.stdout.write(self.style.WARNING('[-]') + ' Removing stale local User accounts (%s)' % len(stales))
+        for stale in stales:
+            User.objects.filter(user_id=stale).first().delete()
+
