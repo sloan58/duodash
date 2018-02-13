@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Get the Duo Admin API parameters
-        ikey = input(self.style.SUCCESS('Please enter Admin API integration key ("DI..."): '))
+        ikey = input(self.style.SUCCESS('Please enter the Admin API integration key ("DI..."): '))
         skey = input(self.style.SUCCESS('Please enter the secret key: '))
         host = input(self.style.SUCCESS('Please enter the API hostname ("api-....duosecurity.com"): '))
 
@@ -84,9 +84,23 @@ class Command(BaseCommand):
 
     @staticmethod
     def remove_stale_accounts(self, users):
+        """Remove stale local User accounts.
+
+        These are accounts that exist in the local database but are not returned from the API
+
+        :param self:
+        :param users:
+        """
+        # All of the user_id's from the recently fetched Duo API
         duo_user_id_list = [o['user_id'] for o in users]
+
+        # All of the local user user_id's
         local_users = User.objects.values_list('user_id', flat=True)
+
+        # The difference between local users and duo_users
         stales = list(set(local_users) - set(duo_user_id_list))
+
+        # Delete the local users that don't exist in the Duo database
         self.stdout.write(self.style.WARNING('[-]') + ' Removing stale local User accounts (%s)' % len(stales))
         for stale in stales:
             User.objects.filter(user_id=stale).first().delete()

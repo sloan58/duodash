@@ -11,9 +11,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Get the Duo Admin API parameters
-        ikey = input(self.style.SUCCESS('Please enter Admin API integration key ("DI..."): '))
-        skey = input(self.style.SUCCESS('Please enter the secret key: '))
-        host = input(self.style.SUCCESS('Please enter the API hostname ("api-....duosecurity.com"): '))
+        # ikey = input(self.style.SUCCESS('Please enter Admin API integration key ("DI..."): '))
+        # skey = input(self.style.SUCCESS('Please enter the secret key: '))
+        # host = input(self.style.SUCCESS('Please enter the API hostname ("api-....duosecurity.com"): '))
+
+        ikey = '***REMOVED***'
+        skey = '***REMOVED***'
+        host = '***REMOVED***'
 
         # Create the Duo Admin API Client Object
         admin_api = duo_client.Admin(
