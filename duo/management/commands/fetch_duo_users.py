@@ -4,6 +4,7 @@ import duo_client
 from django.core.management.base import BaseCommand, CommandError
 
 from duo.models import User
+from duo.models import Token
 
 
 class Command(BaseCommand):
@@ -13,9 +14,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Get the Duo Admin API parameters
-        ikey = input(self.style.SUCCESS('Please enter the Admin API integration key ("DI..."): '))
-        skey = input(self.style.SUCCESS('Please enter the secret key: '))
-        host = input(self.style.SUCCESS('Please enter the API hostname ("api-....duosecurity.com"): '))
+        # ikey = input(self.style.SUCCESS('Please enter the Admin API integration key ("DI..."): '))
+        # skey = input(self.style.SUCCESS('Please enter the secret key: '))
+        # host = input(self.style.SUCCESS('Please enter the API hostname ("api-....duosecurity.com"): '))
+
+        ikey = '***REMOVED***'
+        skey = '***REMOVED***'
+        host = '***REMOVED***'
 
         # Create the Duo Admin API Client Object
         admin_api = duo_client.Admin(
@@ -42,6 +47,8 @@ class Command(BaseCommand):
         # Iterate the Users for insert/update
         for user in users:
 
+            # TODO: Start breaking these processes into smaller methods
+            
             # Django model DateTimeField does not play nice
             # with Unix Timestamps.  Check to see if it exists
             # and convert it to a Datetime format with timezone
@@ -63,7 +70,7 @@ class Command(BaseCommand):
 
             # Call get_or_create with the duo_user dictionary
             try:
-                instance, created = User.objects.get_or_create(user_id=user['user_id'], defaults=duo_user)
+                user_instance, created = User.objects.get_or_create(user_id=user['user_id'], defaults=duo_user)
             except Exception as e:
                 self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
                 continue
@@ -71,14 +78,40 @@ class Command(BaseCommand):
             # If the object was not 'created', then it already existed.  Update the model as needed
             if not created:
                 for attr, value in duo_user.items():
-                    setattr(instance, attr, value)
+                    setattr(user_instance, attr, value)
 
                 # Save the updates
                 try:
-                    instance.save()
+                    user_instance.save()
                 except Exception as e:
                     self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
                     continue
+
+            if len(user['tokens']):
+
+                for token in user['tokens']:
+
+                    # Call get_or_create with the token dictionary
+                    try:
+                        token_instance, created = Token.objects.get_or_create(serial=token['serial'], defaults=token)
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                        continue
+
+                    # If the object was not 'created', then it already existed.  Update the model as needed
+                    if not created:
+                        for attr, value in duo_user.items():
+                            setattr(token_instance, attr, value)
+
+                        # Save the updates
+                        try:
+                            token_instance.save()
+                        except Exception as e:
+                            self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                            continue
+
+                    # Save the Duo Token/User Many to Many Relationship
+                    token_instance.users.add(user_instance)
 
         self.stdout.write(self.style.SUCCESS('[√]') + ' Finished!')
 

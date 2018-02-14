@@ -22,3 +22,12 @@ class Group(models.Model):
     push_enabled = models.BooleanField(default=False)
     sms_enabled = models.BooleanField(default=False)
     voice_enabled = models.BooleanField(default=False)
+
+
+# Duo Token model
+class Token(models.Model):
+    serial = models.CharField(max_length=200, unique=True)
+    token_id = models.CharField(max_length=200)
+    type = models.CharField(max_length=200)
+    totp_step = models.CharField(max_length=200, null=True)
+    users = models.ManyToManyField(User)
