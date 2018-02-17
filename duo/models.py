@@ -22,6 +22,7 @@ class Group(models.Model):
     push_enabled = models.BooleanField(default=False)
     sms_enabled = models.BooleanField(default=False)
     voice_enabled = models.BooleanField(default=False)
+    users = models.ManyToManyField(User)
 
 
 # Duo Token model

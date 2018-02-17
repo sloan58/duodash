@@ -111,6 +111,13 @@ class Command(BaseCommand):
                     # Save the Duo Token/User Many to Many Relationship
                     token_instance.users.add(user_instance)
 
+            # TODO: Associate User Groups
+            if len(user['groups']):
+
+                for group in user['groups']:
+
+                    print(group)
+
         self.stdout.write(self.style.SUCCESS('[√]') + ' Finished!')
 
     @staticmethod
