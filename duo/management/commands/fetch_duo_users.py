@@ -1,10 +1,12 @@
-import pytz
 import datetime
-import duo_client
-from django.core.management.base import BaseCommand, CommandError
 
-from duo.models import User
+import duo_client
+import pytz
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
 from duo.models import Token
+from duo.models import User
 
 
 class Command(BaseCommand):
@@ -14,9 +16,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Get the Duo Admin API parameters
-        ikey = input(self.style.SUCCESS('Please enter the Admin API integration key ("DI..."): '))
-        skey = input(self.style.SUCCESS('Please enter the secret key: '))
-        host = input(self.style.SUCCESS('Please enter the API hostname ("api-....duosecurity.com"): '))
+        ikey = settings.DUO_IKEY
+        skey = settings.DUO_SKEY
+        host = settings.DUO_HOST
 
         # Create the Duo Admin API Client Object
         admin_api = duo_client.Admin(

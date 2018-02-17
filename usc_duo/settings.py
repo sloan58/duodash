@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -24,6 +25,10 @@ SECRET_KEY = '7r#c%h2n*=bu4e&1+mf)k2r9uwd(toksqv9v0m1ilcp&#*d6th'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+DUO_IKEY = os.getenv("DUO_IKEY")
+DUO_SKEY = os.getenv("DUO_SKEY")
+DUO_HOST = os.getenv("DUO_HOST")
 
 ALLOWED_HOSTS = []
 
