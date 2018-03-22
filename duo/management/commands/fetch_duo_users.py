@@ -25,7 +25,9 @@ class Command(BaseCommand):
             ikey, skey, host
         )
 
-        self.stdout.write(self.style.WARNING('[-]') + ' Creating Duo Admin Client and querying the API...')
+        self.stdout.write(
+            self.style.WARNING('[-]') +
+            ' Creating Duo Admin Client and querying the API...')
 
         # Fetch all Duo Users
         try:
@@ -34,9 +36,12 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
             exit()
 
-        self.stdout.write(self.style.WARNING('[-]') + ' Found %s Duo Users to store locally' % len(users))
+        self.stdout.write(
+            self.style.WARNING('[-]') +
+            ' Found %s Duo Users to store locally' % len(users)
+        )
 
-        # Remove local Duo User accounts that are no longer returned from the API
+        # Remove local Duo User accounts no longer returned via API
         self.remove_stale_accounts(self, users)
 
         # Just picking a timezone since we have to....
@@ -51,7 +56,10 @@ class Command(BaseCommand):
             # with Unix Timestamps.  Check to see if it exists
             # and convert it to a Datetime format with timezone
             if user['last_login'] is not None:
-                last_login = datetime.datetime.fromtimestamp(user['last_login'], tz=timezone)
+                last_login = datetime.datetime.fromtimestamp(
+                                                    user['last_login'],
+                                                    tz=timezone
+                                                )
             else:
                 last_login = None
 
@@ -68,12 +76,17 @@ class Command(BaseCommand):
 
             # Call get_or_create with the duo_user dictionary
             try:
-                user_instance, created = User.objects.get_or_create(user_id=user['user_id'], defaults=duo_user)
+                user_instance, created = User.objects.get_or_create(
+                                            user_id=user['user_id'],
+                                            defaults=duo_user
+                                        )
             except Exception as e:
-                self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                self.stdout.write(
+                    self.style.ERROR('[!] %s (%s)' % (e, type(e)))
+                    )
                 continue
 
-            # If the object was not 'created', then it already existed.  Update the model as needed
+            # If the object was not 'created', then it already existed.
             if not created:
                 for attr, value in duo_user.items():
                     setattr(user_instance, attr, value)
@@ -82,7 +95,9 @@ class Command(BaseCommand):
                 try:
                     user_instance.save()
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                    self.stdout.write(
+                        self.style.ERROR('[!] %s (%s)' % (e, type(e)))
+                        )
                     continue
 
             if len(user['tokens']):
@@ -91,21 +106,28 @@ class Command(BaseCommand):
 
                     # Call get_or_create with the token dictionary
                     try:
-                        token_instance, created = Token.objects.get_or_create(serial=token['serial'], defaults=token)
+                        token_instance, created = Token.objects.get_or_create(
+                                                    serial=token['serial'],
+                                                    defaults=token
+                                                )
                     except Exception as e:
-                        self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                        self.stdout.write(
+                            self.style.ERROR('[!] %s (%s)' % (e, type(e)))
+                            )
                         continue
 
-                    # If the object was not 'created', then it already existed.  Update the model as needed
+                    # If the object was not 'created', then it already existed.
                     if not created:
-                        for attr, value in duo_user.items():
+                        for attr, value in token.items():
                             setattr(token_instance, attr, value)
 
                         # Save the updates
                         try:
                             token_instance.save()
                         except Exception as e:
-                            self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                            self.stdout.write(
+                                self.style.ERROR('[!] %s (%s)' % (e, type(e)))
+                                )
                             continue
 
                     # Save the Duo Token/User Many to Many Relationship
@@ -116,7 +138,7 @@ class Command(BaseCommand):
 
                 for group in user['groups']:
 
-                    print(group)
+                    
 
         self.stdout.write(self.style.SUCCESS('[√]') + ' Finished!')
 
@@ -124,7 +146,8 @@ class Command(BaseCommand):
     def remove_stale_accounts(self, users):
         """Remove stale local User accounts.
 
-        These are accounts that exist in the local database but are not returned from the API
+        These are accounts that exist in the local database
+        but are not returned from the API
 
         :param self:
         :param users:
@@ -139,7 +162,10 @@ class Command(BaseCommand):
         stales = list(set(local_users) - set(duo_user_id_list))
 
         # Delete the local users that don't exist in the Duo database
-        self.stdout.write(self.style.WARNING('[-]') + ' Removing stale local User accounts (%s)' % len(stales))
+        self.stdout.write(
+            self.style.WARNING('[-]') +
+            ' Removing stale local User accounts (%s)' % len(stales)
+            )
         for stale in stales:
             User.objects.filter(user_id=stale).first().delete()
 

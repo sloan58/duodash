@@ -21,7 +21,10 @@ class Command(BaseCommand):
             ikey, skey, host
         )
 
-        self.stdout.write(self.style.WARNING('[-]') + ' Creating Duo Admin Client and querying the API...')
+        self.stdout.write(
+            self.style.WARNING('[-]') +
+            ' Creating Duo Admin Client and querying the API...'
+        )
 
         # Fetch all Duo Groups
         try:
@@ -30,7 +33,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
             exit()
 
-        self.stdout.write(self.style.WARNING('[-]') + ' Found %s Duo Groups to store locally' % len(groups))
+        self.stdout.write(
+            self.style.WARNING('[-]') +
+            ' Found %s Duo Groups to store locally' % len(groups)
+        )
 
         # Iterate the Groups for insert/update
         for group in groups:
@@ -49,12 +55,18 @@ class Command(BaseCommand):
 
             # Call get_or_create with the duo_group dictionary
             try:
-                instance, created = Group.objects.get_or_create(group_id=group['group_id'], defaults=duo_group)
+                instance, created = Group.objects.get_or_create(
+                    group_id=group['group_id'],
+                    defaults=duo_group
+                    )
             except Exception as e:
-                self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                self.stdout.write(
+                    self.style.ERROR('[!] %s (%s)' % (e, type(e)))
+                )
                 continue
 
-            # If the object was not 'created', then it already existed.  Update the model as needed
+            # If the object was not 'created', then it already existed.
+            # Update the model as needed
             if not created:
                 for attr, value in duo_group.items():
                     setattr(instance, attr, value)
@@ -63,7 +75,9 @@ class Command(BaseCommand):
                 try:
                     instance.save()
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR('[!] %s (%s)' % (e, type(e))))
+                    self.stdout.write(
+                        self.style.ERROR('[!] %s (%s)' % (e, type(e)))
+                    )
                     continue
 
         self.stdout.write(self.style.SUCCESS('[√]') + ' Finished!')
