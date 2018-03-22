@@ -5,8 +5,10 @@ import pytz
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from duo.models import Token
+
 from duo.models import User
+from duo.models import Group
+from duo.models import Token
 
 
 class Command(BaseCommand):
@@ -133,12 +135,11 @@ class Command(BaseCommand):
                     # Save the Duo Token/User Many to Many Relationship
                     token_instance.users.add(user_instance)
 
-            # TODO: Associate User Groups
+            # Associate User Groups
             if len(user['groups']):
-
                 for group in user['groups']:
-
-                    
+                    group_instance = Group.objects.filter(group_id='DG387M16YCVX1SBLY37E').first()
+                    group_instance.users.add(user_instance)
 
         self.stdout.write(self.style.SUCCESS('[√]') + ' Finished!')
 
