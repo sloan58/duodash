@@ -32,3 +32,19 @@ class Token(models.Model):
     type = models.CharField(max_length=200)
     totp_step = models.CharField(max_length=200, null=True)
     users = models.ManyToManyField(User)
+
+
+# Duo Phone model
+class Phone(models.Model):
+    phone_id = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200, null=True)
+    number = models.CharField(max_length=200, null=True)
+    extension = models.CharField(max_length=200, null=True)
+    type = models.CharField(max_length=200, null=True)
+    platform = models.CharField(max_length=200, null=True)
+    postdelay = models.CharField(max_length=200, null=True)
+    predelay = models.CharField(max_length=200, null=True)
+    sms_passcodes_sent = models.CharField(max_length=200, null=True)
+    activated = models.CharField(max_length=200, null=True)
+    users = models.ManyToManyField(User)
+
